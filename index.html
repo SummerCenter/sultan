@@ -407,7 +407,7 @@
 
         <div class="search-section">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="أدخل الرقم المدني المكون من 9 أرقام..." onkeypress="handleKeyPress(event)" maxlength="9">
+                <input type="text" id="searchInput" placeholder="أدخل الرقم المدني للبحث..." onkeypress="handleKeyPress(event)">
                 <button onclick="searchEmployee()" id="searchBtn">🔍 بحث</button>
             </div>
         </div>
@@ -568,7 +568,7 @@
                 }
 
                 lastUpdate = new Date();
-                dataSource.innerHTML = `✅ تم تحميل ${employeesData.length} سجل - آخر تحديث: ${lastUpdate.toLocaleString('ar-OM')} - ${new Intl.DateTimeFormat('ar-OM', { dateStyle: 'full', timeStyle: 'medium' }).format(lastUpdate)}`;
+                dataSource.innerHTML = `✅ تم تحميل ${employeesData.length} سجل - آخر تحديث: ${lastUpdate.toLocaleString('ar-OM')}`;
                 
                 // تحديث الإحصائيات
                 document.getElementById('statsBadge').innerHTML = `📊 ${employeesData.length} موظف مسجل`;
@@ -589,7 +589,9 @@
             employeesData = [
                 { civilId: '123456789', name: 'أحمد بن محمد البلوشي', year: '2024', gender: 'ذكر', startDate: '2024-01-01', endDate: '2024-12-31', leaveType: 'سنوية', contractAmount: '1250.500' },
                 { civilId: '987654321', name: 'فاطمة بنت خلفان الوهيبية', year: '2024', gender: 'أنثى', startDate: '2024-02-01', endDate: '2024-11-30', leaveType: 'مرضية', contractAmount: '980.750' },
-                { civilId: '456789123', name: 'خالد بن سعيد المعمري', year: '2024', gender: 'ذكر', startDate: '2024-03-01', endDate: '2024-10-31', leaveType: 'بدون', contractAmount: '1500.000' }
+                { civilId: '456789123', name: 'خالد بن سعيد المعمري', year: '2024', gender: 'ذكر', startDate: '2024-03-01', endDate: '2024-10-31', leaveType: 'بدون', contractAmount: '1500.000' },
+                { civilId: '111222333', name: 'شيخة بنت حمد البوسعيدية', year: '2024', gender: 'أنثى', startDate: '2024-04-01', endDate: '2024-09-30', leaveType: 'سنوية', contractAmount: '875.250' },
+                { civilId: '444555666', name: 'سعيد بن علي الكندي', year: '2024', gender: 'ذكر', startDate: '2024-05-01', endDate: '2024-08-31', leaveType: 'مرضية', contractAmount: '2100.000' }
             ];
             
             document.getElementById('dataSource').innerHTML = '⚠️ عرض بيانات تجريبية للعرض';
@@ -610,12 +612,7 @@
                 return;
             }
 
-            if (civilId.length !== 9) {
-                alert('الرجاء إدخال رقم مدني صحيح مكون من 9 أرقام');
-                return;
-            }
-
-            // البحث في البيانات
+            // البحث في البيانات (مطابقة تامة)
             const employee = employeesData.find(emp => emp.civilId === civilId);
 
             errorMessage.style.display = 'none';
@@ -681,12 +678,8 @@
                 }
             });
 
-            // منع إدخال غير الأرقام
-            searchInput.addEventListener('keypress', function(e) {
-                if (!/^[0-9]$/.test(e.key)) {
-                    e.preventDefault();
-                }
-            });
+            // السماح بإدخال أي أحرف (بدون قيود)
+            // تم إزالة منع إدخال غير الأرقام
         });
     </script>
 </body>

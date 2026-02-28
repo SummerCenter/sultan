@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>نظام البحث عن الموظفين - مباشر من Google Sheets</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 1200px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            padding: 30px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .search-box {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-box button {
+            position: absolute;
+            left: 5px;
+            top: 5px;
+            bottom: 5px;
+            padding: 0 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-box button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-box button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .employee-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin: 20px;
+            display: none;
+        }
+
+        .employee-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .employee-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: 600;
+        }
+
+        .employee-name {
+            flex: 1;
+        }
+
+        .employee-name h2 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .badge {
+            background: #28a745;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-value {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .contract-value {
+            font-size: 24px;
+            color: #28a745;
+            font-weight: 700;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin: 20px;
+            color: #666;
+            display: none;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 20px;
+            background: #f8d7da;
+            color: #721c24;
+            border-radius: 12px;
+            margin: 20px;
+            display: none;
+        }
+
+        .data-source {
+            text-align: center;
+            padding: 15px;
+            background: #e9ecef;
+            font-size: 14px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .search-box button {
+                position: static;
+                width: 100%;
+                margin-top: 10px;
+                padding: 15px;
+            }
+            
+            .employee-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 نظام البحث عن الموظفين</h1>
+            <p>بيانات مباشرة من Google Sheets</p>
+        </div>
+
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="أدخل الرقم المدني..." onkeypress="handleKeyPress(event)">
+                <button onclick="searchEmployee()" id="searchBtn">بحث</button>
+            </div>
+        </div>
+
+        <!-- مؤشر التحميل -->
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>جاري تحميل البيانات...</p>
+        </div>
+
+        <!-- بطاقة الموظف -->
+        <div class="employee-card" id="employeeCard">
+            <div class="employee-header">
+                <div class="employee-avatar" id="employeeAvatar">👤</div>
+                <div class="employee-name">
+                    <h2 id="employeeFullName">-</h2>
+                    <p>الرقم المدني: <span id="employeeCivilId">-</span></p>
+                </div>
+                <div class="badge" id="employeeGender">-</div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">📅 العام</div>
+                    <div class="info-value" id="employeeYear">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">📆 بداية التعاقد</div>
+                    <div class="info-value" id="employeeStartDate">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">📆 نهاية التعاقد</div>
+                    <div class="info-value" id="employeeEndDate">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">🏖️ نوع الاجازة</div>
+                    <div class="info-value" id="employeeLeaveType">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">💰 مبلغ العقد</div>
+                    <div class="info-value contract-value" id="employeeContractAmount">-</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- رسالة لا توجد نتائج -->
+        <div class="no-results" id="noResults">
+            <h3>🔍 لا توجد نتائج</h3>
+            <p>لم يتم العثور على موظف بهذا الرقم المدني</p>
+        </div>
+
+        <!-- رسالة خطأ -->
+        <div class="error-message" id="errorMessage">
+            <p>❌ حدث خطأ في تحميل البيانات. يرجى المحاولة لاحقاً</p>
+        </div>
+
+        <div class="data-source" id="dataSource">
+            جاري تحميل البيانات...
+        </div>
+    </div>
+
+    <script>
+        // =============================================
+        // قم بتعديل هذا الرابط برابط Google Sheets الخاص بك
+        // =============================================
+        const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQbyryUEcEO6cysi8-IEvgbZDHiZueWQbKRYBfwmhOB_Q7mKHz0kFCvZEYdZ0Bt86tWjGcXkp6M37dT/pub?gid=1891610798&single=true&output=csv';
+        
+        // أو استخدم هذا الرابط إذا كنت تريد نشر جدول Excel
+        // const EXCEL_URL = 'رابط ملف Excel المنشور';
+
+        let employeesData = [];
+        let lastUpdate = null;
+
+        // دالة لتحويل تاريخ من صيغة CSV إلى صيغة مفهومة
+        function formatDate(dateString) {
+            if (!dateString || dateString === '') return '-';
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return dateString;
+                return date.toLocaleDateString('ar-KW');
+            } catch {
+                return dateString;
+            }
+        }
+
+        // دالة لتنسيق العملة
+        function formatCurrency(amount) {
+            if (!amount || amount === '') return '-';
+            const num = parseFloat(amount);
+            if (isNaN(num)) return amount;
+            return new Intl.NumberFormat('ar-KW', {
+                style: 'currency',
+                currency: 'KWD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 3
+            }).format(num);
+        }
+
+        // دالة لتحميل البيانات من Google Sheets
+        async function loadDataFromSheet() {
+            const loading = document.getElementById('loading');
+            const searchBtn = document.getElementById('searchBtn');
+            const dataSource = document.getElementById('dataSource');
+            const errorMessage = document.getElementById('errorMessage');
+
+            loading.style.display = 'block';
+            searchBtn.disabled = true;
+            errorMessage.style.display = 'none';
+
+            try {
+                // محاولة تحميل البيانات من Google Sheets
+                const response = await fetch(GOOGLE_SHEETS_URL, {
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('فشل في تحميل البيانات');
+                }
+
+                const csvText = await response.text();
+                
+                // تحويل CSV إلى مصفوفة
+                const rows = csvText.split('\n').map(row => row.split(','));
+                
+                // تجاهل الصف الأول إذا كان يحتوي على عناوين الأعمدة
+                const startRow = 1; // غيّر إلى 0 إذا لم يكن هناك عنوان للأعمدة
+                
+                employeesData = [];
+                
+                for (let i = startRow; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (row.length < 8) continue; // تجاهل الصفوف الناقصة
+                    
+                    // تنظيف البيانات من علامات التنصيص والمسافات الزائدة
+                    const cleanRow = row.map(cell => cell.trim().replace(/^["']|["']$/g, ''));
+                    
+                    const employee = {
+                        civilId: cleanRow[0] || '',
+                        name: cleanRow[1] || '',
+                        year: cleanRow[2] || '',
+                        gender: cleanRow[3] || '',
+                        startDate: formatDate(cleanRow[4]),
+                        endDate: formatDate(cleanRow[5]),
+                        leaveType: cleanRow[6] || '',
+                        contractAmount: cleanRow[7] || ''
+                    };
+                    
+                    // إضافة فقط إذا كان الرقم المدني غير فارغ
+                    if (employee.civilId) {
+                        employeesData.push(employee);
+                    }
+                }
+
+                lastUpdate = new Date();
+                dataSource.innerHTML = `✅ تم تحميل ${employeesData.length} سجل - آخر تحديث: ${lastUpdate.toLocaleString('ar-KW')}`;
+                
+            } catch (error) {
+                console.error('خطأ في تحميل البيانات:', error);
+                errorMessage.style.display = 'block';
+                dataSource.innerHTML = '❌ فشل في تحميل البيانات';
+                
+                // استخدام بيانات تجريبية في حالة الفشل
+                useSampleData();
+            } finally {
+                loading.style.display = 'none';
+                searchBtn.disabled = false;
+            }
+        }
+
+        // بيانات تجريبية في حالة فشل الاتصال
+        function useSampleData() {
+            employeesData = [
+                { civilId: '1234567890', name: 'أحمد محمد علي', year: '2024', gender: 'ذكر', startDate: '2024-01-01', endDate: '2024-12-31', leaveType: 'سنوية', contractAmount: '50000' },
+                { civilId: '0987654321', name: 'فاطمة أحمد حسن', year: '2024', gender: 'أنثى', startDate: '2024-02-01', endDate: '2024-11-30', leaveType: 'مرضية', contractAmount: '45000' }
+            ];
+            
+            document.getElementById('dataSource').innerHTML = '⚠️ استخدام بيانات تجريبية - فشل الاتصال بجدول البيانات';
+        }
+
+        // دالة البحث عن موظف
+        function searchEmployee() {
+            const searchInput = document.getElementById('searchInput');
+            const civilId = searchInput.value.trim();
+            
+            const employeeCard = document.getElementById('employeeCard');
+            const noResults = document.getElementById('noResults');
+            const errorMessage = document.getElementById('errorMessage');
+
+            if (!civilId) {
+                alert('الرجاء إدخال الرقم المدني');
+                return;
+            }
+
+            // البحث في البيانات
+            const employee = employeesData.find(emp => emp.civilId === civilId);
+
+            // إخفاء جميع الرسائل
+            errorMessage.style.display = 'none';
+            
+            if (employee) {
+                // عرض بيانات الموظف
+                document.getElementById('employeeCivilId').textContent = employee.civilId;
+                document.getElementById('employeeFullName').textContent = employee.name || '-';
+                document.getElementById('employeeYear').textContent = employee.year || '-';
+                document.getElementById('employeeGender').textContent = employee.gender || '-';
+                document.getElementById('employeeStartDate').textContent = employee.startDate || '-';
+                document.getElementById('employeeEndDate').textContent = employee.endDate || '-';
+                document.getElementById('employeeLeaveType').textContent = employee.leaveType || '-';
+                document.getElementById('employeeContractAmount').textContent = formatCurrency(employee.contractAmount);
+                
+                // تحديث الصورة الرمزية
+                const nameParts = (employee.name || 'موظف').split(' ');
+                const initials = nameParts.map(part => part[0]).join('').substring(0, 2);
+                document.getElementById('employeeAvatar').textContent = initials || '👤';
+
+                employeeCard.style.display = 'block';
+                noResults.style.display = 'none';
+                
+                // تمرير للنتيجة
+                employeeCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                employeeCard.style.display = 'none';
+                noResults.style.display = 'block';
+            }
+        }
+
+        // دالة للتعامل مع مفتاح Enter
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                searchEmployee();
+            }
+        }
+
+        // تحديث البيانات كل 5 دقائق
+        function startAutoRefresh() {
+            setInterval(() => {
+                loadDataFromSheet();
+            }, 5 * 60 * 1000); // 5 دقائق
+        }
+
+        // تهيئة الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDataFromSheet();
+            startAutoRefresh();
+            
+            // إضافة مستمع لإخفاء البطاقة عند مسح المدخل
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function() {
+                if (this.value === '') {
+                    document.getElementById('employeeCard').style.display = 'none';
+                    document.getElementById('noResults').style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

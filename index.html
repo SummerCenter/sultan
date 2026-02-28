@@ -3,54 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>نظام البحث عن الموظفين - مباشر من Google Sheets</title>
+    <title>برنامج التعاقد بالأجر اليومي - المديرية العامة بمحافظة الظاهرة</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap');
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 15px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* خلفية ديناميكية */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,215,0,0.03) 0%, transparent 50%);
+            animation: rotate 30s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,215,0,0.1);
             width: 100%;
             max-width: 1200px;
             overflow: hidden;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255,215,0,0.2);
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #8B4513 0%, #B8860B 50%, #CD7F32 100%);
             color: white;
-            padding: 30px 20px;
+            padding: 35px 20px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
         .header h1 {
-            font-size: 28px;
+            font-size: 32px;
             margin-bottom: 10px;
+            font-weight: 900;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+        }
+
+        .header h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.95);
+        }
+
+        .header h3 {
+            font-size: 20px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.9);
         }
 
         .header p {
             font-size: 16px;
-            opacity: 0.9;
+            opacity: 0.95;
+            margin-top: 10px;
+            font-weight: 500;
         }
 
         .search-section {
             padding: 30px 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+            background: linear-gradient(135deg, #f6f9fc 0%, #edf2f7 100%);
+            border-bottom: 3px solid #B8860B;
+            position: relative;
         }
 
         .search-box {
@@ -61,17 +124,25 @@
 
         .search-box input {
             width: 100%;
-            padding: 15px 20px;
+            padding: 18px 25px;
             font-size: 16px;
             border: 2px solid #e0e0e0;
-            border-radius: 50px;
+            border-radius: 60px;
             outline: none;
             transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
 
         .search-box input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #B8860B;
+            box-shadow: 0 0 0 4px rgba(184, 134, 11, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .search-box input::placeholder {
+            color: #999;
+            font-weight: 400;
         }
 
         .search-box button {
@@ -79,25 +150,29 @@
             left: 5px;
             top: 5px;
             bottom: 5px;
-            padding: 0 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0 35px;
+            background: linear-gradient(135deg, #8B4513 0%, #B8860B 100%);
             color: white;
             border: none;
-            border-radius: 50px;
+            border-radius: 60px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            letter-spacing: 0.5px;
         }
 
         .search-box button:hover {
-            transform: scale(1.02);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            transform: scale(1.02) translateY(-1px);
+            box-shadow: 0 10px 25px rgba(184, 134, 11, 0.4);
+            background: linear-gradient(135deg, #9B5513 0%, #C8960B 100%);
         }
 
         .search-box button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
         }
 
         .loading {
@@ -107,11 +182,12 @@
         }
 
         .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 4px solid rgba(184, 134, 11, 0.1);
+            border-top: 4px solid #B8860B;
+            border-right: 4px solid #8B4513;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
         }
@@ -122,33 +198,51 @@
         }
 
         .employee-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin: 20px;
+            background: linear-gradient(135deg, #ffffff 0%, #fef9e7 100%);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(184, 134, 11, 0.2);
+            margin: 25px;
             display: none;
+            border-right: 5px solid #B8860B;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .employee-header {
             display: flex;
             align-items: center;
-            gap: 20px;
-            margin-bottom: 25px;
+            gap: 25px;
+            margin-bottom: 30px;
             flex-wrap: wrap;
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.05) 0%, rgba(184, 134, 11, 0.05) 100%);
+            padding: 20px;
+            border-radius: 20px;
         }
 
         .employee-avatar {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #8B4513 0%, #B8860B 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 32px;
-            font-weight: 600;
+            font-size: 36px;
+            font-weight: 700;
+            box-shadow: 0 10px 20px rgba(184, 134, 11, 0.3);
+            border: 3px solid #fff;
         }
 
         .employee-name {
@@ -156,18 +250,26 @@
         }
 
         .employee-name h2 {
-            font-size: 28px;
-            color: #333;
-            margin-bottom: 5px;
+            font-size: 32px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-weight: 900;
+        }
+
+        .employee-name p {
+            font-size: 18px;
+            color: #666;
+            font-weight: 500;
         }
 
         .badge {
-            background: #28a745;
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
             color: white;
-            padding: 8px 20px;
+            padding: 10px 25px;
             border-radius: 50px;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
         }
 
         .info-grid {
@@ -179,64 +281,98 @@
         .info-item {
             background: white;
             padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border-radius: 18px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(184, 134, 11, 0.1);
+        }
+
+        .info-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(184, 134, 11, 0.1);
+            border-color: rgba(184, 134, 11, 0.3);
         }
 
         .info-label {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 8px;
+            font-size: 15px;
+            color: #8B4513;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 8px;
+            font-weight: 700;
         }
 
         .info-value {
-            font-size: 18px;
-            color: #333;
-            font-weight: 600;
+            font-size: 20px;
+            color: #2c3e50;
+            font-weight: 700;
+            line-height: 1.4;
         }
 
         .contract-value {
-            font-size: 24px;
-            color: #28a745;
-            font-weight: 700;
+            font-size: 28px;
+            color: #27ae60;
+            font-weight: 900;
+            text-shadow: 0 2px 5px rgba(39, 174, 96, 0.2);
+            background: linear-gradient(135deg, #27ae60, #229954);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .no-results {
             text-align: center;
-            padding: 40px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            margin: 20px;
-            color: #666;
+            padding: 50px;
+            background: #fff3e0;
+            border-radius: 20px;
+            margin: 25px;
+            color: #8B4513;
             display: none;
+            border: 2px dashed #B8860B;
+        }
+
+        .no-results h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 900;
         }
 
         .error-message {
             text-align: center;
-            padding: 20px;
-            background: #f8d7da;
-            color: #721c24;
-            border-radius: 12px;
-            margin: 20px;
+            padding: 25px;
+            background: #fee;
+            color: #c0392b;
+            border-radius: 15px;
+            margin: 25px;
             display: none;
+            border-right: 5px solid #c0392b;
         }
 
         .data-source {
             text-align: center;
-            padding: 15px;
-            background: #e9ecef;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #2c3e50 0%, #1a2a3a 100%);
             font-size: 14px;
-            color: #666;
+            color: #ecf0f1;
+            border-top: 2px solid #B8860B;
+            font-weight: 500;
+        }
+
+        .stats-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            padding: 5px 15px;
+            border-radius: 50px;
+            margin-top: 10px;
+            font-size: 14px;
         }
 
         @media (max-width: 768px) {
             .search-box button {
                 position: static;
                 width: 100%;
-                margin-top: 10px;
+                margin-top: 15px;
                 padding: 15px;
             }
             
@@ -244,27 +380,42 @@
                 flex-direction: column;
                 text-align: center;
             }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .header h2 {
+                font-size: 20px;
+            }
+
+            .header h3 {
+                font-size: 18px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔍 نظام البحث عن الموظفين</h1>
-            <p>بيانات مباشرة من Google Sheets</p>
+            <h1>📋 برنامج التعاقد بالأجر اليومي</h1>
+            <h2>المديرية العامة بمحافظة الظاهرة</h2>
+            <h3>قسم التعينات</h3>
+            <p>نظام البحث والاستعلام الإلكتروني</p>
+            <div class="stats-badge" id="statsBadge">✨ نسخة متطورة ✨</div>
         </div>
 
         <div class="search-section">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="أدخل الرقم المدني..." onkeypress="handleKeyPress(event)">
-                <button onclick="searchEmployee()" id="searchBtn">بحث</button>
+                <input type="text" id="searchInput" placeholder="أدخل الرقم المدني المكون من 9 أرقام..." onkeypress="handleKeyPress(event)" maxlength="9">
+                <button onclick="searchEmployee()" id="searchBtn">🔍 بحث</button>
             </div>
         </div>
 
         <!-- مؤشر التحميل -->
         <div class="loading" id="loading">
             <div class="loading-spinner"></div>
-            <p>جاري تحميل البيانات...</p>
+            <p style="color: #8B4513; font-weight: 700;">جاري تحميل البيانات من السجل الإلكتروني...</p>
         </div>
 
         <!-- بطاقة الموظف -->
@@ -273,7 +424,7 @@
                 <div class="employee-avatar" id="employeeAvatar">👤</div>
                 <div class="employee-name">
                     <h2 id="employeeFullName">-</h2>
-                    <p>الرقم المدني: <span id="employeeCivilId">-</span></p>
+                    <p>📇 الرقم المدني: <span id="employeeCivilId" style="font-weight: 700; color: #8B4513;">-</span></p>
                 </div>
                 <div class="badge" id="employeeGender">-</div>
             </div>
@@ -284,19 +435,19 @@
                     <div class="info-value" id="employeeYear">-</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">📆 بداية التعاقد</div>
+                    <div class="info-label">🗓️ بداية التعاقد</div>
                     <div class="info-value" id="employeeStartDate">-</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">📆 نهاية التعاقد</div>
+                    <div class="info-label">🗓️ نهاية التعاقد</div>
                     <div class="info-value" id="employeeEndDate">-</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">🏖️ نوع الاجازة</div>
+                    <div class="info-label">🏝️ نوع الاجازة</div>
                     <div class="info-value" id="employeeLeaveType">-</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-label">💰 مبلغ العقد</div>
+                    <div class="info-label">💰 مبلغ التعاقد</div>
                     <div class="info-value contract-value" id="employeeContractAmount">-</div>
                 </div>
             </div>
@@ -305,57 +456,65 @@
         <!-- رسالة لا توجد نتائج -->
         <div class="no-results" id="noResults">
             <h3>🔍 لا توجد نتائج</h3>
-            <p>لم يتم العثور على موظف بهذا الرقم المدني</p>
+            <p>لم يتم العثور على موظف بهذا الرقم المدني في قاعدة البيانات</p>
+            <p style="margin-top: 10px; font-size: 14px;">يرجى التأكد من إدخال الرقم المدني الصحيح</p>
         </div>
 
         <!-- رسالة خطأ -->
         <div class="error-message" id="errorMessage">
             <p>❌ حدث خطأ في تحميل البيانات. يرجى المحاولة لاحقاً</p>
+            <p style="font-size: 14px; margin-top: 5px;">جاري محاولة إعادة الاتصال...</p>
         </div>
 
         <div class="data-source" id="dataSource">
-            جاري تحميل البيانات...
+            <span>⚡ جاري تحميل البيانات من قاعدة البيانات المركزية ⚡</span>
         </div>
     </div>
 
     <script>
-        // =============================================
-        // قم بتعديل هذا الرابط برابط Google Sheets الخاص بك
-        // =============================================
+        // رابط Google Sheets - قم بتعديله حسب ملفك
         const GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQbyryUEcEO6cysi8-IEvgbZDHiZueWQbKRYBfwmhOB_Q7mKHz0kFCvZEYdZ0Bt86tWjGcXkp6M37dT/pub?gid=1891610798&single=true&output=csv';
-        
-        // أو استخدم هذا الرابط إذا كنت تريد نشر جدول Excel
-        // const EXCEL_URL = 'رابط ملف Excel المنشور';
 
         let employeesData = [];
         let lastUpdate = null;
 
-        // دالة لتحويل تاريخ من صيغة CSV إلى صيغة مفهومة
+        // دالة تنسيق التاريخ
         function formatDate(dateString) {
             if (!dateString || dateString === '') return '-';
             try {
                 const date = new Date(dateString);
                 if (isNaN(date.getTime())) return dateString;
-                return date.toLocaleDateString('ar-KW');
+                return date.toLocaleDateString('ar-OM', {
+                    year: 'numeric',
+                    month: 'numeric',
+                    day: 'numeric'
+                });
             } catch {
                 return dateString;
             }
         }
 
-        // دالة لتنسيق العملة
-        function formatCurrency(amount) {
+        // دالة تنسيق العملة بالريال العماني
+        function formatOMR(amount) {
             if (!amount || amount === '') return '-';
-            const num = parseFloat(amount);
+            
+            // تنظيف القيمة من أي رموز غير رقمية
+            const numStr = String(amount).replace(/[^0-9.-]/g, '');
+            const num = parseFloat(numStr);
+            
             if (isNaN(num)) return amount;
-            return new Intl.NumberFormat('ar-KW', {
+            
+            // تنسيق الريال العماني
+            return new Intl.NumberFormat('ar-OM', {
                 style: 'currency',
-                currency: 'KWD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 3
-            }).format(num);
+                currency: 'OMR',
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3,
+                currencyDisplay: 'code'
+            }).format(num).replace('OMR', 'ر.ع.');
         }
 
-        // دالة لتحميل البيانات من Google Sheets
+        // دالة تحميل البيانات
         async function loadDataFromSheet() {
             const loading = document.getElementById('loading');
             const searchBtn = document.getElementById('searchBtn');
@@ -367,7 +526,6 @@
             errorMessage.style.display = 'none';
 
             try {
-                // محاولة تحميل البيانات من Google Sheets
                 const response = await fetch(GOOGLE_SHEETS_URL, {
                     cache: 'no-cache',
                     headers: {
@@ -381,47 +539,44 @@
 
                 const csvText = await response.text();
                 
-                // تحويل CSV إلى مصفوفة
-                const rows = csvText.split('\n').map(row => row.split(','));
+                // تحليل CSV
+                const rows = csvText.split('\n').map(row => row.split(',').map(cell => 
+                    cell.trim().replace(/^["']|["']$/g, '')
+                ));
                 
-                // تجاهل الصف الأول إذا كان يحتوي على عناوين الأعمدة
-                const startRow = 1; // غيّر إلى 0 إذا لم يكن هناك عنوان للأعمدة
-                
+                // تجاهل الصف الأول (عناوين الأعمدة)
                 employeesData = [];
                 
-                for (let i = startRow; i < rows.length; i++) {
+                for (let i = 1; i < rows.length; i++) {
                     const row = rows[i];
-                    if (row.length < 8) continue; // تجاهل الصفوف الناقصة
-                    
-                    // تنظيف البيانات من علامات التنصيص والمسافات الزائدة
-                    const cleanRow = row.map(cell => cell.trim().replace(/^["']|["']$/g, ''));
+                    if (row.length < 8) continue;
                     
                     const employee = {
-                        civilId: cleanRow[0] || '',
-                        name: cleanRow[1] || '',
-                        year: cleanRow[2] || '',
-                        gender: cleanRow[3] || '',
-                        startDate: formatDate(cleanRow[4]),
-                        endDate: formatDate(cleanRow[5]),
-                        leaveType: cleanRow[6] || '',
-                        contractAmount: cleanRow[7] || ''
+                        civilId: row[0]?.trim() || '',
+                        name: row[1]?.trim() || '',
+                        year: row[2]?.trim() || '',
+                        gender: row[3]?.trim() || '',
+                        startDate: formatDate(row[4]),
+                        endDate: formatDate(row[5]),
+                        leaveType: row[6]?.trim() || '',
+                        contractAmount: row[7]?.trim() || ''
                     };
                     
-                    // إضافة فقط إذا كان الرقم المدني غير فارغ
                     if (employee.civilId) {
                         employeesData.push(employee);
                     }
                 }
 
                 lastUpdate = new Date();
-                dataSource.innerHTML = `✅ تم تحميل ${employeesData.length} سجل - آخر تحديث: ${lastUpdate.toLocaleString('ar-KW')}`;
+                dataSource.innerHTML = `✅ تم تحميل ${employeesData.length} سجل - آخر تحديث: ${lastUpdate.toLocaleString('ar-OM')} - ${new Intl.DateTimeFormat('ar-OM', { dateStyle: 'full', timeStyle: 'medium' }).format(lastUpdate)}`;
                 
+                // تحديث الإحصائيات
+                document.getElementById('statsBadge').innerHTML = `📊 ${employeesData.length} موظف مسجل`;
+
             } catch (error) {
-                console.error('خطأ في تحميل البيانات:', error);
+                console.error('خطأ:', error);
                 errorMessage.style.display = 'block';
-                dataSource.innerHTML = '❌ فشل في تحميل البيانات';
-                
-                // استخدام بيانات تجريبية في حالة الفشل
+                dataSource.innerHTML = '⚠️ استخدام البيانات المحفوظة - تعذر الاتصال بقاعدة البيانات';
                 useSampleData();
             } finally {
                 loading.style.display = 'none';
@@ -429,17 +584,19 @@
             }
         }
 
-        // بيانات تجريبية في حالة فشل الاتصال
+        // بيانات تجريبية
         function useSampleData() {
             employeesData = [
-                { civilId: '1234567890', name: 'أحمد محمد علي', year: '2024', gender: 'ذكر', startDate: '2024-01-01', endDate: '2024-12-31', leaveType: 'سنوية', contractAmount: '50000' },
-                { civilId: '0987654321', name: 'فاطمة أحمد حسن', year: '2024', gender: 'أنثى', startDate: '2024-02-01', endDate: '2024-11-30', leaveType: 'مرضية', contractAmount: '45000' }
+                { civilId: '123456789', name: 'أحمد بن محمد البلوشي', year: '2024', gender: 'ذكر', startDate: '2024-01-01', endDate: '2024-12-31', leaveType: 'سنوية', contractAmount: '1250.500' },
+                { civilId: '987654321', name: 'فاطمة بنت خلفان الوهيبية', year: '2024', gender: 'أنثى', startDate: '2024-02-01', endDate: '2024-11-30', leaveType: 'مرضية', contractAmount: '980.750' },
+                { civilId: '456789123', name: 'خالد بن سعيد المعمري', year: '2024', gender: 'ذكر', startDate: '2024-03-01', endDate: '2024-10-31', leaveType: 'بدون', contractAmount: '1500.000' }
             ];
             
-            document.getElementById('dataSource').innerHTML = '⚠️ استخدام بيانات تجريبية - فشل الاتصال بجدول البيانات';
+            document.getElementById('dataSource').innerHTML = '⚠️ عرض بيانات تجريبية للعرض';
+            document.getElementById('statsBadge').innerHTML = `📊 ${employeesData.length} موظف (تجريبي)`;
         }
 
-        // دالة البحث عن موظف
+        // دالة البحث
         function searchEmployee() {
             const searchInput = document.getElementById('searchInput');
             const civilId = searchInput.value.trim();
@@ -453,14 +610,18 @@
                 return;
             }
 
+            if (civilId.length !== 9) {
+                alert('الرجاء إدخال رقم مدني صحيح مكون من 9 أرقام');
+                return;
+            }
+
             // البحث في البيانات
             const employee = employeesData.find(emp => emp.civilId === civilId);
 
-            // إخفاء جميع الرسائل
             errorMessage.style.display = 'none';
             
             if (employee) {
-                // عرض بيانات الموظف
+                // عرض البيانات
                 document.getElementById('employeeCivilId').textContent = employee.civilId;
                 document.getElementById('employeeFullName').textContent = employee.name || '-';
                 document.getElementById('employeeYear').textContent = employee.year || '-';
@@ -468,36 +629,43 @@
                 document.getElementById('employeeStartDate').textContent = employee.startDate || '-';
                 document.getElementById('employeeEndDate').textContent = employee.endDate || '-';
                 document.getElementById('employeeLeaveType').textContent = employee.leaveType || '-';
-                document.getElementById('employeeContractAmount').textContent = formatCurrency(employee.contractAmount);
+                
+                // تنسيق مبلغ التعاقد بالريال العماني
+                document.getElementById('employeeContractAmount').textContent = formatOMR(employee.contractAmount);
                 
                 // تحديث الصورة الرمزية
                 const nameParts = (employee.name || 'موظف').split(' ');
-                const initials = nameParts.map(part => part[0]).join('').substring(0, 2);
+                let initials = '';
+                if (nameParts.length >= 2) {
+                    initials = (nameParts[0][0] + nameParts[1][0]).toUpperCase();
+                } else {
+                    initials = employee.name.substring(0, 2).toUpperCase();
+                }
                 document.getElementById('employeeAvatar').textContent = initials || '👤';
 
                 employeeCard.style.display = 'block';
                 noResults.style.display = 'none';
                 
                 // تمرير للنتيجة
-                employeeCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                employeeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
             } else {
                 employeeCard.style.display = 'none';
                 noResults.style.display = 'block';
             }
         }
 
-        // دالة للتعامل مع مفتاح Enter
+        // معالجة مفتاح Enter
         function handleKeyPress(event) {
             if (event.key === 'Enter') {
                 searchEmployee();
             }
         }
 
-        // تحديث البيانات كل 5 دقائق
+        // تحديث تلقائي
         function startAutoRefresh() {
             setInterval(() => {
                 loadDataFromSheet();
-            }, 5 * 60 * 1000); // 5 دقائق
+            }, 5 * 60 * 1000);
         }
 
         // تهيئة الصفحة
@@ -505,12 +673,18 @@
             loadDataFromSheet();
             startAutoRefresh();
             
-            // إضافة مستمع لإخفاء البطاقة عند مسح المدخل
             const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('input', function() {
                 if (this.value === '') {
                     document.getElementById('employeeCard').style.display = 'none';
                     document.getElementById('noResults').style.display = 'none';
+                }
+            });
+
+            // منع إدخال غير الأرقام
+            searchInput.addEventListener('keypress', function(e) {
+                if (!/^[0-9]$/.test(e.key)) {
+                    e.preventDefault();
                 }
             });
         });
